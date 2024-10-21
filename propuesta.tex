@@ -1,0 +1,40 @@
+\documentclass{article}
+
+
+\begin{document}
+
+\begin{center}
+{\bfseries\Large
+  La ecuación de Poisson sobre geometrías complejas.
+}
+
+\vspace{0.25cm}
+
+Integrantes: Andrés Díaz, Juan Pablo Flores, Sebastián Sánchez.
+
+\vspace{0.5cm}
+
+{\scriptsize
+Proyecto para la versión 2024-2 del curso 
+IMT3430 - Método para Ecuaciones Diferenciales, impartido por Manuel Sánchez.
+}
+\end{center}
+
+Resolveremos la ecuación de Poisson en geometrías complejas, entendiendo
+complejas como aquellas que tienen muchas puntas y agujeros.
+En tales geometrías el mallado puede ser un cuello de botella a la hora
+de aplicar elementos finitos, así también, su mala calidad puede
+deteriorar la regularidad y fidelidad de la solución.
+Para afrontar la situación descrita proponemos usar métodos 
+aleatorizados~\cite{sawhney2020}
+que no requieran de un mallado específico y que están basados en
+formulaciones estocásticas de la ecuación diferencial.
+Nuestro principal objetivo es comparar FEM con este método 
+en geometrías complejas.
+
+\begin{thebibliography}{9}
+\bibitem{sawhney2020}
+Sawhney, Rohan, and Keenan Crane. "Monte Carlo geometry processing: A grid-free approach to PDE-based methods on volumetric domains." ACM Transactions on Graphics 39.4 (2020).
+\end{thebibliography}
+
+\end{document}
