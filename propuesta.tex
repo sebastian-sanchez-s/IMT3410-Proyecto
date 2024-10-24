@@ -1,5 +1,7 @@
 \documentclass{article}
 
+\usepackage{amsmath, amssymb}
+\usepackage[top=2cm]{geometry}
 
 \begin{document}
 
@@ -20,19 +22,35 @@ IMT3430 - Método para Ecuaciones Diferenciales, impartido por Manuel Sánchez.
 }
 \end{center}
 
-Resolveremos la ecuación de Poisson en geometrías complejas, entendiendo
-complejas como aquellas que tienen muchas puntas y agujeros.
-En tales geometrías el mallado puede ser un cuello de botella a la hora
-de aplicar elementos finitos, así también, su mala calidad puede
-deteriorar la regularidad y fidelidad de la solución.
-Para afrontar la situación descrita proponemos usar métodos 
-aleatorizados~\cite{sawhney2020}
-que no requieran de un mallado específico y que están basados en
-formulaciones estocásticas de la ecuación diferencial.
-Nuestro principal objetivo es comparar FEM con este método 
-en geometrías complejas.
+En 1944 Shizuo Kakutani~\cite{kak44} demostró que la solución al problema de frontera
+\begin{displaymath}
+  -\Delta u = 0 \text{ en } \Omega, \quad
+  u = g \text{ sobre } \partial\Omega
+\end{displaymath}
+se puede expresar puntualmente como el valor esperado \(\mathbb{E}(g(W))\)
+de la primera vez un movimiento Browniano \(W\) toca el borde comenzando en el punto.
+Usando el método de caminata en esferas~\cite{sawhney2020} junto con estimaciones de 
+Montercarlo se puede simular tal esperanza y por lo tanto la solución a la EDP.
+La ventaja de esta formulación es que no requiere mallados complejos sobre el
+dominio, a diferencia de FEM. Nuestra propuesta consiste en comparar ambos métodos
+sobre geometrías complicadas, entendiendo complicadas como aquellas que tienen
+muchas puntas y agujeros.
+
+% Resolveremos la ecuación de Poisson en geometrías complejas, entendiendo
+% complejas como aquellas que tienen muchas puntas y agujeros.
+% En tales geometrías el mallado puede ser un cuello de botella a la hora
+% de aplicar elementos finitos, así también, su mala calidad puede
+% deteriorar la regularidad y fidelidad de la solución.
+% Para afrontar la situación descrita proponemos usar métodos 
+% aleatorizados~\cite{sawhney2020}
+% que no requieran de un mallado específico y que están basados en
+% formulaciones estocásticas de la ecuación diferencial.
+% Nuestro principal objetivo es comparar FEM con este método 
+% en geometrías complejas.
 
 \begin{thebibliography}{9}
+\bibitem{kak44}
+Kakutani, S. (1944). 143. two-dimensional brownian motion and harmonic functions. Proceedings of the Imperial Academy, 20(10), 706-714.
 \bibitem{sawhney2020}
 Sawhney, Rohan, and Keenan Crane. "Monte Carlo geometry processing: A grid-free approach to PDE-based methods on volumetric domains." ACM Transactions on Graphics 39.4 (2020).
 \end{thebibliography}
