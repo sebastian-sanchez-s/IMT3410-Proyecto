@@ -27,10 +27,23 @@ En 1944 Shizuo Kakutani~\cite{kak44} demostró que la solución al problema de f
   -\Delta u = 0 \text{ en } \Omega, \quad
   u = g \text{ sobre } \partial\Omega
 \end{displaymath}
-se puede expresar puntualmente como el valor esperado \(\mathbb{E}(g(W))\)
-de la primera vez un movimiento Browniano \(W\) toca el borde comenzando en el punto.
+se puede expresar puntualmente como el valor esperado \(\mathbb{E}(g(Y))\), donde $Y$ es el primer punto en $\partial \Omega$ alcanzado por un movimiento Browniano $W$ que comienza en el punto, $x_0$, donde queremos estimar la función.
 Usando el método de caminata en esferas~\cite{sawhney2020} junto con estimaciones de 
-Montercarlo se puede simular tal esperanza y por lo tanto la solución a la EDP.
+Monte Carlo se puede estimar tal esperanza y por lo tanto la solución a la EDP.
+
+La idea básica del método es que para estimar $u(x_0)$, nos basta con simular el paseo aleatorio del movimiento Browniano centrado en $x_0$ hasta llegar a $\partial \Omega$. Comenzamos la simulación envolviendo $x_0$ con una bola $B(x_0)\subseteq\Omega$. Luego, como el movimiento Browniano es simétrico, este puede escaparse por cualquier punto de la frontera de la bola de manera equiprobable. O sea, podemos estimar $u(x_0)$ con $u(X_1)$, donde $X_1\sim \mbox{Unif}(\partial B(x_0))$. Al no conocerse el valor de $u(X_1)$, este también debe ser estimado. Creamos así una secuencia aleatoria $X_1,\ldots,X_{N}$, la cual detenemos cuando nos acercamos lo suficiente al borde de $\Omega$; cuando $X_{N}\in \partial \Omega_\varepsilon$ (los puntos a distancia a lo más $\varepsilon >0$ de $\partial \Omega$), estimamos $u(X_N)$ mediante $g(\overline{X_N})$, donde $\overline{X_N}$ es el punto de $\partial \Omega$ más cercano a $X_N$. Escrito más sucintamente, la simulación es:
+
+\begin{equation*}
+    \hat{u}(X_k)=\begin{cases}
+        g(\overline{X_k}), X_k\in\partial\Omega_{\varepsilon}\\
+        \hat{u}(X_{k+1}),\,\text{en caso contrario.}
+    \end{cases}
+\end{equation*}
+
+Debido a que la simulación extiende la condición de frontera a $\partial \Omega_{\varepsilon}$, esta se verá sesgada hacia aquellos puntos. Sin embargo, la magnitud de este sesgo estará controlada por el parámetro $\varepsilon>0$.
+
+Es posible refinar el algoritmo usando técnicas estándar de reducción de varianza para disminuir el error inducido por la aleatoriedad de la simulación, siendo la manera más sencilla generar múltiples estimaciones de $u(x_0)$ y luego promediarlas.
+
 La ventaja de esta formulación es que no requiere mallados complejos sobre el
 dominio, a diferencia de FEM. Nuestra propuesta consiste en comparar ambos métodos
 sobre geometrías complicadas, entendiendo complicadas como aquellas que tienen
