@@ -1,0 +1,173 @@
+\documentclass[11pt]{article}
+\usepackage{latexsym}
+\usepackage[spanish, es-tabla]{babel}
+\usepackage[shortlabels]{enumitem}
+\unaccentedoperators %keep min, max, etc. without spanish accent
+
+
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+
+%plots
+\usepackage{tikz}
+%\documentclass[tikz,border=3mm]{standalone}
+\usepackage{pgfplots}
+
+\usepackage{array}
+ 
+% compile with xelatex
+\usepackage{times} % Times
+%\usepackage{mathptmx} % Times
+%\usepackage{pxfonts} % 
+%\usepackage{mathpazo} % 
+\usepackage[scaled=0.92]{helvet}  % Helvetica, scaled 92%
+\newcommand{\bm}[1]{\text{\textbf{\textit{#1}}}}  % hack for bold math
+
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage[boxruled]{algorithm2e} %Algoritmos
+%\usepackage[ruled]{algorithm} %Algoritmos
+\usepackage{algpseudocode} % Mas algoritmos
+\usepackage{bbm} % 1 indicator
+\usepackage{amsthm}
+\usepackage{verbatim} % Permite usar comment
+\usepackage{natbib} % Bibliografía
+%\usepackage{epsfig}
+%\usepackage{psfig}
+\usepackage{hyperref}
+
+
+\topmargin 0pt \advance \topmargin by -\headheight \advance
+\topmargin by -\headsep \textheight 8.9in \oddsidemargin 0pt
+\evensidemargin \oddsidemargin \marginparwidth 0.5in \textwidth
+6.5in
+
+\parindent 0in
+\parskip 1.5ex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\handout}[6]{
+  \noindent
+  \begin{center}
+  \framebox{
+    \vbox{
+      \hbox to 5.78in { {\bf  IMT3410:} \hfill #3 }
+      \vspace{4mm}
+      \hbox to 5.78in { {\Large \hfill #1  \hfill} }
+      \vspace{2mm}
+	\hbox to 5.78in { {\Large \hfill #2  \hfill} }
+      \vspace{2mm}
+      \hbox to 5.78in { #4 \hfill {\em #5} }
+    }
+  }
+  \end{center}
+  \vspace*{4mm}
+}
+\newcommand{\lecture}[5]{\handout{#1}{#2}{#3}{Alumno: #4}{Profesor: #5}{#1}}
+\newtheorem{theorem}{Teorema}
+\newtheorem{corollary}[theorem]{Corolario}
+\newtheorem{lemma}[theorem]{Lema}
+\newtheorem{observation}{Observaci\'on}
+\newtheorem{pregunta}{Pregunta}
+\newtheorem{proposition}[theorem]{Proposici\'on}
+\newtheorem{definition}{Definici\'on}
+\newtheorem{fact}[theorem]{Hecho}
+\newtheorem{assumption}[theorem]{Suposición}
+\newtheorem{example}{Ejemplo}
+
+\DeclareMathOperator{\eps}{\varepsilon}
+\DeclareMathOperator{\AAA}{{\mathcal{A}}}
+
+\def\1{\mathbbm{1}} %funci�n indicatriz
+\newcommand{\expect}[1]{\mathbb{E}\left[#1\right]} %esperanza con paréntesis
+
+%Norma 2
+\newcommand{\norm}[1]{\left\|#1\right\|_2}
+
+\newcommand{\expo}[1]{\text{exp}\left(#1\right)} %exponencial con paréntesis
+\newcommand{\lnn}[1]{\ln\left(#1\right)} %logaritmo natural con paréntesis
+
+%\newcommand{\Var}{\mbox{\bf Var}}
+\newcommand{\Var}{\mathbb{V}\!\mbox{ar}}
+
+%Comandos para comentar el artículo
+\newcommand{\ad}[1]{\textcolor{red}{AD: #1}}
+\newcommand{\seb}[1]{\textcolor{blue}{SS: #1}}
+\newcommand{\jf}[1]{\textcolor{cyan}{JF: #1}}
+
+%Enumeración de ecuación en un align*, de manera de que preserve la numeración de todo el documento.
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+\newcommand{\prob}[1]{\mathbb{P}\left(#1\right)}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\sphere}{\mathbb{S}}
+\renewcommand{\S}{\mathcal{S}}
+\newcommand{\LL}{{\cal L}}
+\newcommand{\N}{{\cal N}}
+\newcommand{\GG}{{\cal G}}
+\newcommand{\CCC}{{\cal C}}
+\newcommand{\M}{\cal M}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\E}{\mathcal{E}}
+\renewcommand{\H}{\mathcal{H}}
+\newcommand{\RRR}{{\cal R}}
+\newcommand{\W}{\mathcal{W}}
+\newcommand{\Z}{\mathcal{Z}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\Y}{\mathcal{Y}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\Q}{\mathcal{Q}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\K}{\mathcal{K}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\Prox}{\mbox{Prox}}
+\newcommand{\Opt}{\mbox{Opt}}
+\newcommand{\conv}{\mbox{conv}}
+\newcommand{\dist}{\mbox{dist}}
+\newcommand{\sign}{\mbox{sign}}
+\newcommand{\inter}{\mbox{int}}
+\newcommand{\Tr}[1]{\mbox{Tr}\left(#1\right)}
+\newcommand{\rg}{\mbox{rg}}
+\newcommand{\ext}{\mbox{ext}}
+\newcommand{\op}[1]{\left\|#1\right\|_{\mbox{\footnotesize op}}}
+\newcommand{\nuc}{\mbox{\footnotesize nuc}}
+\newcommand{\TV}{\mbox{\footnotesize TV}}
+\newcommand{\MoM}{\mbox{\footnotesize MoM}}
+\newcommand{\Sch}{\mbox{\footnotesize Sch}}
+\newcommand{\ERM}{\mbox{\footnotesize ERM}}
+\newcommand{\VCdim}{\mbox{dim}_{\mbox{\tiny VC}}}
+
+
+
+%\renewcommand{\inf}{\mbox{inf}}
+%\renewcommand{\min}{\mbox{min}}
+%\renewcommand{\max}{\mbox{max}}
+\newcommand{\argmin}[1]{ \underset{ #1 }{ \mbox{argmin} } }
+\newcommand{\argmax}[1]{ \underset{ #1 }{ \mbox{argmax} } }
+
+%%%%% ALGORITHMS
+\SetAlgorithmName{Algoritmo}{algoritmo}{Lista de Algoritmos}
+%\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+%\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+% VARIABLES ALEATORIAS
+\newcommand{\ba}{\mathbf{a}}
+\newcommand{\bb}{\mathbf{b}}
+\newcommand{\bd}{\mathbf{d}}
+\newcommand{\br}{\mathbf{r}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bX}{\mathbf{X}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bz}{\mathbf{z}}
+\newcommand{\bg}{\mathbf{g}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bW}{\mathbf{W}}
+\newcommand{\bA}{\mathbf{A}}
+\newcommand{\bs}{\mathbf{s}}
+\newcommand{\bS}{\mathbf{S}}

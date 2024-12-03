@@ -1,0 +1,193 @@
+\input{commands}
+
+\begin{document}
+%%% Fill in NUMBER, DATE and SCRIBE NAMES %%%%%
+\lecture{\bf Borrador Informe}{}
+{02 de Diciembre de 2024}{Pendiente}{Pendiente}
+
+\section{Teoría}
+
+Presentamos a continuación las ecuaciones de Laplace y de Poisson, junto con algunas propiedades que poseen sus soluciones, las cuales serán relevantes para la introducción del algoritmo de caminata en esferas \jf{Modificar esto si es que agregamos otros problemas, como el Screened Poisson}.
+
+Dado un conjunto abierto $\Omega\subseteq\RR^d$ y funciones $f:\Omega\to\RR$ y $g:\partial\Omega\to\mathbb{R}$, se define
+\begin{enumerate}
+    \item La ecuación de Laplace como
+    \begin{align*}
+        \Delta u &= 0\text{ en }\Omega\numberthis\label{eqn:laplace}\\
+        u &= g\text{ en }\partial\Omega.
+    \end{align*}
+    \item La ecuación de Poisson como
+    \begin{align*}
+        -\Delta u &= f\text{ en }\Omega\numberthis\label{eqn:poisson}\\
+        u &= g\text{ en }\partial\Omega.
+    \end{align*}
+\end{enumerate}
+
+ La solución a la ecuación \eqref{eqn:laplace} es armónica en $\Omega$, por ende, satisface la siguiente representación integral, la cual es conocida como \textit{propiedad del valor medio}.
+
+\begin{proposition}[Propiedad del valor medio, \citep{axler2013harmonic}]\label{prop:integral_rep_laplace}
+    Sean $x_0\in\Omega$, $R>0$ y $B(x_0,R)\subseteq\Omega$. Si $u$ es una solución de \eqref{eqn:laplace}, entonces
+    \begin{equation*}
+        u(x_0)=\frac{1}{\left|\partial B(x_0,R)\right|}\int_{\partial B(x_0,R)}u(y)dy.
+    \end{equation*}
+
+    Dicho de otra manera, si $X\sim{\cal U}(\partial B(x_0,R))$ es una variable aleatoria con distribución uniforme sobre la esfera de centro $x_0$ y radio $R>0$, entonces
+    \begin{equation*}
+        u(x_0) = \expect{u(X)}.
+    \end{equation*}
+\end{proposition}
+
+La solución de la ecuación \eqref{eqn:poisson} admite una representación integral similar. 
+
+\begin{proposition}[\cite{zachmanoglou1986introduction}, Ejercicio 9.4, Capítulo 7]\label{prop:integral_rep_poisson}
+    Sean $x_0\in\Omega$, $R>0$ y $B(x_0,R)\subseteq\Omega$. Si $u$ es una solución de \eqref{eqn:poisson}, entonces
+    \begin{equation*}
+        u(x_0)=\frac{1}{\left|\partial B(x_0,R)\right|}\int_{\partial B(x_0,R)}u(y)dy + \int_{B(x_0,R)}f(y)G(x_0,y)dy,
+    \end{equation*}
+    donde $G(x_0,y)$ es la función de Green en la esfera $B(x_0,R)$.
+
+    Parafraseado en términos probabilísticos, si $X\sim{\cal U}(\partial B(x_0,R))$ e $Y\sim {\cal U}( B(x_0,R))$, entonces
+    \begin{equation*}
+        u(x_0) = \expect{u(X)}+\left|B(x_0,R)\right|\cdot\expect{f(Y)G(x_0,Y)}.
+    \end{equation*}
+\end{proposition}
+
+Para instancias de la función de Green de la esfera para los casos $d=2$ y $d=3$, ver Tabla \ref{table:green_functions}.
+
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{N}{@{}m{0pt}@{}}
+\begin{table}[h!]
+\centering
+\begin{tabular}[c]{M{2cm}|M{3.5cm}|M{3.5cm}}
+  {} & {\small $2D$} & {\small $3D$}\\
+  \hline
+  $G(x,y)$ & $\frac{1}{2\pi}\ln(R/\norm{y-x})$ & $\frac{1}{4\pi}\left(\frac{R-\norm{y-x}}{R\norm{y-x}}\right)$ \\
+  \hline
+   $\nabla_x G(x,y)$ & $\frac{y-x}{2\pi}\left(\frac{1}{\norm{y-x}^2}-\frac{1}{R^2}\right)$ & $\frac{y-x}{4\pi}\left(\frac{1}{\norm{y-x}^3}-\frac{1}{R^3}\right)$
+\end{tabular}
+\caption{Funciones de Green y sus gradientes (con respecto a $x$) de la bola Euclidiana de radio $R$ para los casos $d=2$ y $d=3$.}
+\label{table:green_functions}
+\end{table}
+
+\section{Walk on Spheres}
+
+\subsection{Derivación del algoritmo}
+
+La idea principal del algoritmo de \textit{Caminata en Esferas} es reemplazar las representaciones integrales de las Proposiciones \ref{prop:integral_rep_laplace} y \ref{prop:integral_rep_poisson} por simulaciones de Montecarlo. Específicamente,
+\begin{enumerate}
+    \item En el contexto de la ecuación de Laplace \eqref{eqn:laplace}, muestrear $X_1\sim {\cal U}(\partial B(x_0,R))$ y aproximar $u(x_0)$ mediante:
+    $$u(x_0)\approx u(X_1).$$
+    \item En el contexto de la ecuación de Poisson \eqref{eqn:poisson}, muestrear $X_1\sim {\cal U}(\partial B(x_0,R))$ e $Y_1\sim {\cal U}(B(x_0,R))$ y aproximar $u(x_0)$ mediante:
+    $$u(x_0)\approx u(X_1) + \left|B(x_0,R)\right|\cdot f(Y_1)G(x_0,Y_1).$$
+\end{enumerate}
+
+\textbf{Observación:}
+    En la ecuación de Poisson, el término $f(Y_1)G(x_0,Y_1)$ es fácil de calcular, pues tanto $f$ como $G$ son funciones conocidas; el término $u(X_1)$, en cambio, presenta dificultades, ya que lo que buscamos es precisamente conocer $u$ (naturalmente, esto también es válido para la ecuación de Laplace).
+\jf{Por algún motivo overleaf deja de compilar si defino un comando para la observación.}
+
+Desde una perspectiva algorítmica, hay dos preguntas naturales respecto a la anterior propuesta de aproximación: ¿Cómo estimamos $u(X_1)$? y ¿Cómo elegimos el radio de la bola?
+
+Debido a que ambas ecuaciones necesitan calcular $u(X_1)$ y la ecuación de Laplace es más sencilla, usaremos esa aproximación de modelo; es decir, estaremos considerando $u(x_0)\approx u(X_1)$.
+
+Observemos que si $X_1\in\partial\Omega$, entonces $u(X_1)=g(X_1)$, valor que conocemos por el \textit{setting} del problema. Así que la dificultad se presenta cuando $X_1\notin\partial \Omega$. Si $X_1\notin\partial\Omega$, entonces podemos aplicar la aproximación estocástica, pero esta vez a $u(X_1)$; es decir, tomar una bola $B(X_2,R)\subset\Omega$, muestrear $X_2\sim {\cal U}(\partial B(X_1,R_2))$ y estimar $u(X_1)\approx u(X_2)$. Repetiremos este proceso hasta que --de manera fortuita-- podamos muestrear una variable aleatoria que se encuentre en $\partial \Omega$. Una elección sensata para el radio, $R>0$, de las bolas es que este sea maximal en el sentido de que $B(x_0,R)$ sea la mayor bola centrada en $x_0$ que está dentro $\Omega$, pues así <<aumentamos>> nuestras chances de caer en $\partial\Omega$. Se obtiene así  una primera versión (ingenua) del algoritmo (ver Algoritmo \ref{alg:wos_naive}).
+
+\RestyleAlgo{ruled}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+\begin{algorithm}[H]\label{alg:wos_naive}
+\caption{Caminata en esferas (ingenuo)}
+    \Input{Punto inicial $x_0\in\Omega$, función $g:\partial\Omega\to\RR$}
+    $X_{-1}\gets x_0$\;
+    \While{$X_{-1}\notin\partial\Omega$}{
+    Calcular la distancia, $R$, de $X_{-1}$ a $\partial\Omega$\;
+    Muestrear $X\sim {\cal U}(\partial B(X_{-1},R))$\;
+    $X_{-1}\gets X$
+    }
+    \Output{$g(X_{-1})$}
+\end{algorithm}
+
+El gran problema de este algoritmo es que de manera casi segura no sale de su bucle computacional. Más precisamente, si definimos
+\begin{equation}\label{stopping_time}
+    T^{\ast}:=\text{Iteraciones que toma realiza el algoritmo \ref{alg:wos_naive} en entregar un resultado},
+\end{equation}
+entonces
+\begin{equation*}
+    \prob{T^{\ast}=+\infty}=1.
+\end{equation*}
+
+Esto es intuitivo si consideramos dominios poliedrales, donde una esfera contenida solo puede intersectar una cantidad finita de puntos en la frontera y que, por ende, tiene probabilidad $0$ de caer en uno de ellos\footnote{Esto sigue siendo cierto si consideramos como $\Omega$ una bola abierta y a $x_0$ como cualquier punto distinto del centro.}.
+
+\jf{Agregar dibujo con un rectángulo y una esfera tocando algunos puntos de la frontera.}
+
+Para subsanar este problema, se utiliza como criterio de parada la pertenencia a un cascarón, $\partial\Omega_{\eps}$, de diámetro $\eps$ a la frontera --en vez de la pertenencia exacta a $\partial\Omega$. Formalmente, la pertenencia a
+\begin{equation}\label{def:eps_shell}
+    \partial\Omega_{\eps} := \{x\in\Bar{\Omega}: \mbox{dist}(x,\partial\Omega)<\eps\}.
+\end{equation}
+
+Si bien en la discusión anterior nos enfocamos en el problema de Laplace \eqref{eqn:laplace}, esta continúa siendo válida para el problema de Poisson \eqref{eqn:poisson}. Esto debido a que la detención del algoritmo de caminata en esferas para el problema de Poisson depende de exactamente la misma condición: ser capaces de estimar $u(X)$, que en última instancia depende de que $X\in\partial\Omega$ (o $\partial\Omega_{\eps}$).
+
+Se presenta a continuación el algoritmo de caminata en esferas (algoritmo \ref{alg:wos}) para el problema de Poisson. Para mitigar el efecto de la estocasticidad, se agrega un bucle extra, que permite realizar $N$ estimaciones independientes de $u(x_0)$, para luego promediarlas.
+
+\RestyleAlgo{ruled}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+\begin{algorithm}[H]\label{alg:wos}
+\caption{Caminata en esferas}
+    \Input{Punto inicial $x_0\in\Omega$, parámetro $\eps>0$, cantidad de estimaciones $N\in\mathbb{N}$, funciones $g:\partial\Omega_{\eps}\to\RR$ y $f:\Omega\to\RR$}
+    \For{$n=1,\ldots,N$}{
+    $X_{-1}\gets x_0$\;
+    $u_n\gets 0$\;
+    \While{$X_{-1}\notin\partial\Omega_{\eps}$}{
+    Calcular la distancia, $R$, de $X_{-1}$ a $\partial\Omega$\;
+    Muestrear $Y\sim {\cal U}( B(X,R))$\;
+    $u_n\gets u_n+\left|B(X_{-1},R)\right|\cdot f(Y)G(X_{-1},Y)$\;
+     Muestrear $X\sim {\cal U}(\partial B(X_{-1},R))$\;
+    $X_{-1}\gets X$
+    }
+    $u_n\gets u_n + g(X_{-1})$
+    }
+    \Output{$S_N=\frac{1}{N}\sum_{n=1}^{N}u_n$}
+\end{algorithm}
+
+En caso de que queramos aproximar el problema de Laplace, simplemente ignoramos el muestreo de $Y$ y asignamos $f\equiv 0$.
+
+\subsection{Garantías teóricas de la caminata en esferas}
+
+Presentamos a continuación garantías en esperanza del tiempo de ejecución y de convergencia del Algoritmo \ref{alg:wos}.
+
+\begin{theorem}\citep{delaurentis1990monte}\label{thm:stopping_time_guarantee}
+    Sea $\Omega\subseteq\RR^d$ un abierto tal que $\Bar{\Omega}$ es una unión de convexos compactos. Sea $0<\eps<1$, $x_0\in\Omega\setminus \partial\Omega_{\eps}$ el punto donde queremos estimar la solución de la ecuación y $T^{\ast}$ definido como en \eqref{stopping_time}. Luego
+    \begin{equation*}
+        \expect{T^{\ast}}=O(\ln(1/\eps)).
+    \end{equation*}
+\end{theorem}
+
+\begin{theorem}\citep{delaurentis1990monte}\label{thm:convergence_guarantee}
+    Bajo las mismas hipótesis del Teorema \ref{thm:stopping_time_guarantee} y asumiendo adicionalmente que $\left|\expect{u(X_{T^{\ast}})}-\expect{f(X_{T^{\ast}})}\right|=O(\eps^{1/p})$, para algún $p>0$, y que $\eps = N^{-p/2}$, se tiene que
+    \begin{equation*}
+        \expect{\left(S_N-u(x_0)\right)^2}=O(1/N).
+    \end{equation*}
+
+    En consecuencia, bajo las hipótesis de este teorema, si queremos obtener una aproximación con error del orden de $O(1/N)$, la cantidad de iteraciones esperadas es
+    \begin{equation*}
+        \expect{\mbox{RunTimeWoS}}=O(N\ln(N)).
+    \end{equation*}
+\end{theorem}
+
+\jf{Creo que sería bueno agregar la cantidad de Queries que necesitamos (lo que depende del Bounding Volume Hierarchy).}
+
+\jf{Aún queda añadir
+\begin{itemize}
+    \item Describir más detalladamente las ecuaciones diferenciales, dar motivación (posiblemente física) de ellas.
+    \item Detallar las condiciones que deben imponerse a la ecuación para obtener existencia y unicidad de soluciones (me parece que la unicidad para Poisson es relativamente sencilla).
+    \item Hablar de la estabilidad del algoritmo. Me parece que no tiene mucho sentido hacer un estudio de estabilidad como el que vimos en clases, pero creo que hay que elaborar un poco en por qué esto es así.
+    \item Resultados de los experimentos.
+    \item Conclusiones
+    \item Intro (creo que es mejor patearla para el final).
+\end{itemize}}
+
+\bibliographystyle{ims}
+
+\bibliography{biblio.bib}
+
+\end{document}
