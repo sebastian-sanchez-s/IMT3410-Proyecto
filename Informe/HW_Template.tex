@@ -224,6 +224,34 @@ es una extensión natural de la ecuación de Laplace que incorpora una fuente o 
     \item En termodinámica, $f$ puede describir una fuente de calor distribuida.
 \end{itemize}
 
+\section{Existencia y Unicidad de la Solución para la Ecuación de Poisson}
+
+Para garantizar que la ecuación de Poisson, 
+tenga una solución única, es fundamental que el dominio $\Omega$ y los datos del problema cumplan ciertas propiedades (EVANS):
+
+\begin{itemize}
+    \item El dominio $\Omega$ debe ser abierto, acotado y tener una frontera suficientemente regular (por ejemplo, Lipschitz continua).
+    \item La función fuente $f$ debe ser suficientemente regular; en particular, $f \in L^2(\Omega)$ es suficiente en la mayoría de los casos prácticos.
+    \item Para condiciones de Dirichlet, los valores impuestos $g$ en la frontera $\partial \Omega$ deben ser compatibles con el espacio funcional de las soluciones.
+\end{itemize}
+
+Bajo estas condiciones, el problema admite una solución única que satisface la formulación débil. Esta formulación, basada en el marco funcional del espacio de Sobolev $H^1_0(\Omega)$, busca una función $u \in H^1_0(\Omega)$ que satisfaga:
+\begin{equation}\label{eq:weak_formulation}
+    \int_\Omega \nabla u \cdot \nabla v \, dx = \int_\Omega f v \, dx, \quad \forall v \in H^1_0(\Omega).
+\end{equation}
+
+La existencia y unicidad de soluciones para este problema débil están garantizadas por el \textit{Teorema de Lax-Milgram}, que establece que un operador bilineal, continuo y coercivo definido sobre un espacio de Hilbert tiene una solución única asociada a cualquier funcional lineal continuo. En este caso:
+\begin{itemize}
+    \item La coercividad del operador bilineal $a(u, v) = \int_\Omega \nabla u \cdot \nabla v \, dx$ sigue de la desigualdad de Poincaré, que garantiza:
+    \begin{equation*}
+        a(v, v) \geq C \|v\|^2_{H^1_0(\Omega)} \quad \forall v \in H^1_0(\Omega),
+    \end{equation*}
+    para alguna constante $C > 0$.
+    \item La linealidad y continuidad de $a(u, v)$ y el funcional $F(v) = \int_\Omega f v \, dx$ son propiedades estándar bajo las condiciones asumidas para $f$.
+\end{itemize}
+
+Por lo tanto, bajo estas condiciones, se garantiza la existencia de una solución única en $H^1_0(\Omega)$.
+
 \jf{Creo que sería bueno agregar la cantidad de Queries que necesitamos (lo que depende del Bounding Volume Hierarchy).}
 
 \jf{Aún queda añadir
