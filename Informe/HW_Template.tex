@@ -174,6 +174,56 @@ Presentamos a continuación garantías en esperanza del tiempo de ejecución y d
     \end{equation*}
 \end{theorem}
 
+\section{Ecuaciones-Motivación}
+
+Las ecuaciones de Laplace y Poisson son fundamentales en el estudio de las ecuaciones diferenciales parciales debido a su ubicuidad en aplicaciones físicas y matemáticas. Modelan fenómenos como el flujo de calor, la electrostática, la dinámica de fluidos y la difusión química, entre otros.
+
+\subsection{Ecuación de Laplace}
+
+La ecuación de Laplace,
+\begin{equation*}
+    \Delta u = 0 \quad \text{en } \Omega,
+\end{equation*}
+aparece en contextos donde una cantidad física $u$ (como temperatura, concentración química o potencial eléctrico) se encuentra en equilibrio. Formalmente, $u$ es una función armónica en el dominio $\Omega$. La interpretación física de esta ecuación puede derivarse a partir de la conservación del flujo en un sistema cerrado (EVANS).
+
+Sea $F$ el vector densidad de flujo y $\nu$ el vector normal unitario en la frontera $\partial V$ de una región $V$ contenida en $\Omega$. La conservación del flujo establece que el flujo neto a través de $\partial V$ debe ser cero:
+\begin{equation*}
+    \int_{\partial V} F \cdot \nu \, dS = 0.
+\end{equation*}
+Por el teorema de Gauss-Green, esto implica que
+\begin{equation*}
+    \int_V \text{div} \, F \, dx = 0 \quad \Rightarrow \quad \text{div} \, F = 0 \quad \text{en } V.
+\end{equation*}
+
+Si además asumimos que el flujo $F$ es proporcional al gradiente de $u$ y apunta en la dirección opuesta (es decir, de regiones de mayor concentración a menor concentración), obtenemos:
+\begin{equation*}
+    F = -a \nabla u, \quad a > 0.
+\end{equation*}
+Sustituyendo esta expresión en la ecuación de conservación, resulta en:
+\begin{equation*}
+    \text{div}(\nabla u) = \Delta u = 0.
+\end{equation*}
+
+Por lo tanto, la ecuación de Laplace describe estados estacionarios donde no hay fuentes ni sumideros. Ejemplos físicos incluyen:
+\begin{itemize}
+    \item \textit{Ley de Fick de la difusión}, donde $u$ es una concentración química.
+    \item \textit{Ley de Fourier de la conducción de calor}, donde $u$ es la temperatura.
+    \item \textit{Ley de Ohm de la conducción eléctrica}, donde $u$ es el potencial eléctrico.
+\end{itemize}
+
+\subsection{Ecuación de Poisson}
+
+La ecuación de Poisson,
+\begin{equation*}
+    -\Delta u = f \quad \text{en } \Omega,
+\end{equation*}
+es una extensión natural de la ecuación de Laplace que incorpora una fuente o sumidero representada por la función $f$. Esta ecuación surge en situaciones donde la cantidad $u$ no está en equilibrio, pero se ve afectada por un término externo (EVANS). Por ejemplo:
+\begin{itemize}
+    \item En electrostática, $f$ representa una densidad de carga eléctrica, y $u$ es el potencial eléctrico resultante.
+    \item En dinámica de fluidos, $f$ puede modelar la generación o absorción de masa, mientras que $u$ representa la presión.
+    \item En termodinámica, $f$ puede describir una fuente de calor distribuida.
+\end{itemize}
+
 \jf{Creo que sería bueno agregar la cantidad de Queries que necesitamos (lo que depende del Bounding Volume Hierarchy).}
 
 \jf{Aún queda añadir
