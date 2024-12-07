@@ -4,17 +4,25 @@ import matplotlib.pyplot as plt
 import ngsolve as ng
 from netgen.geom2d import CSG2d, Circle, Rectangle
 
-
 from time import perf_counter
 
-# Problem setting
-geom_primitives = [('circle', np.array((0.5, 0.5)), 0.25)]
+import argparse
 
-# n_circles = 1
-# for i in range(n_circles):
-#     center = np.random.uniform(0.1, 0.9, size=2)
-#     radius = np.random.uniform(0.05, 0.1)
-#     geom_primitives.append(('circle', center, radius))
+parser = argparse.ArgumentParser()
+parser.add_argument('--geom')
+
+args = parser.parse_args()
+
+# Problem setting
+geom_primitives = []
+with open(args.geom, 'r') as f_geom:
+    for line in f_geom:
+        type, *attr = line.strip().split(';')
+        match type:
+            case 'circle':
+                center = np.array([float(x) for x in attr[0].split(' ')])
+                radius = float(attr[1])
+                geom_primitives.append((type, center, radius))
 
 # Utilities for interpolation
 num = 256
@@ -51,8 +59,8 @@ g_ng = ng.GridFunction(fes)
 g_ng.Set(ng.cos(2*ng.pi*ng.x) * ng.sin(2*ng.pi*ng.y), definedon=mesh_ng.Boundaries('left|bottom|right|top'))
 
 u_ng_sol = ng.GridFunction(fes)
+u_ng_sol.Set(ng.CF(0)*ng.x, definedon=mesh_ng.Boundaries('bc_hole'))
 u_ng_sol.Set(g_ng, definedon=mesh_ng.Boundaries('left|bottom|right|top'))
-u_ng_sol.Set(ng.CF(0), definedon=mesh_ng.Boundaries('bc_hole'))
 
 c = ng.Preconditioner(b_ng, 'local')
 c.Update()
@@ -72,6 +80,6 @@ u_ng = u_ng.reshape((num, num))
 # Report results
 print('Time NG:', tng_stop - tng_start)
 
-plt.imshow(u_ng)
-plt.title('u_ng')
-plt.show()
+# plt.imshow(u_ng)
+# plt.title('u_ng')
+# plt.show()

@@ -3,6 +3,13 @@ import matplotlib.pyplot as plt
 
 from time import perf_counter
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--geom')
+
+args = parser.parse_args()
+
 ''' SDF utilities (vectorized)
 
 Las funciones de signo (sdf) evaluadas sobre un x da la distancia de
@@ -57,13 +64,15 @@ def sd_box(query_point, bmin, bmax):
     return np.linalg.norm(d, axis=1)
 
 
-def sd_box_inside(query_point, bmin, bmax):
-    bo = (bmax + bmin) / 2
-    ab = (bmax - bmin) / 2
-    oq = query_point - bo[None, :]
+def sd_unit_square(query_point):
+    ''' query_point     [N]x[2] ->  [N]'''
+    query_point_x = query_point[:, 0]
+    dist_x = np.min((query_point_x, 1.0 - query_point_x), axis=0)
 
-    oq = ab[None, :] - np.abs(oq)
-    return np.min(oq, axis=1)
+    query_point_y = query_point[:, 1]
+    dist_y = np.min((query_point_y, 1.0 - query_point_y), axis=0)
+
+    return np.min((dist_x, dist_y), axis=0)
 
 
 ''' WoS implementation '''
@@ -101,14 +110,17 @@ def WoS2D(x0, mesh, f, g, bnd_tol=1e-3, nwalkers=20, nsteps=10):
 
 ''' Testing '''
 
-# Problem setting: Geometry
-geom_primitives = [('circle', np.array((0.5, 0.5)), 0.25)]
+# Problem setting
+geom_primitives = []
+with open(args.geom, 'r') as f_geom:
+    for line in f_geom:
+        type, *attr = line.strip().split(';')
+        match type:
+            case 'circle':
+                center = np.array([float(x) for x in attr[0].split(' ')])
+                radius = float(attr[1])
+                geom_primitives.append((type, center, radius))
 
-# n_circles = 1
-# for i in range(n_circles):
-#     center = np.random.uniform(0.1, 0.9, size=2)
-#     radius = np.random.uniform(0.05, 0.1)
-#     geom_primitives.append(('circle', center, radius))
 
 # Utilities for interpolation
 num = 256
@@ -118,7 +130,7 @@ X = np.dstack(np.meshgrid(x, x)).reshape((-1, 2))
 # Solve with MonteCarlo
 tmc_start = perf_counter()
 
-sd_list = [lambda x: sd_box_inside(x, np.array((0.0, 0.0)), np.array((1.0, 1.0)))]
+sd_list = [lambda x: sd_unit_square(x)]
 for (type, *attr) in geom_primitives:
     match type:
         case 'rectangle': sd_list.append(lambda x: sd_box(x, attr[0], attr[1]))
@@ -139,7 +151,7 @@ def g_mc(x):
     return ret
 
 
-u_mc = WoS2D(X, sd_field, f_mc, g_mc, bnd_tol=1e-2, nwalkers=50, nsteps=20)
+u_mc = WoS2D(X, sd_field, f_mc, g_mc, bnd_tol=1e-5, nwalkers=20, nsteps=15)
 
 tmc_stop = perf_counter()
 
@@ -148,6 +160,6 @@ u_mc = u_mc.reshape((num, num))
 # Report
 print('Time MC:', tmc_stop - tmc_start)
 
-plt.imshow(u_mc)
-plt.title('u_mc')
-plt.show()
+# plt.imshow(u_mc)
+# plt.title('u_mc')
+# plt.show()
