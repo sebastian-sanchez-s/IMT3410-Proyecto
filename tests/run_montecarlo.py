@@ -55,7 +55,7 @@ def sd_box(query_point, bmin, bmax):
         bmin            [2]
         -> [N]
     '''
-    origin = (bmax + bmin) / 2
+    origin = (bmin + bmax) / 2
     qp = query_point - origin[None, :]
     upper_corner = bmax - origin
 
@@ -92,16 +92,16 @@ def WoS2D(x0, mesh, f, g, bnd_tol=1e-3, nwalkers=20, nsteps=10):
         while np.max(bnd_dist) > bnd_tol and steps < nsteps:
             bnd_dist = mesh.dist2bnd(x)
 
-            bnd_dist_change = bnd_dist[bnd_dist > 0.0]
+            mask = bnd_dist > bnd_tol
 
-            r = bnd_dist_change * np.random.uniform(bnd_tol, 1.0, size=len(bnd_dist_change))
-            t = np.random.uniform(0, 2*np.pi, size=len(bnd_dist_change))
+            r = bnd_dist[mask] * np.random.uniform(size=len(bnd_dist[mask]))
+            t = np.random.uniform(0.0, 2*np.pi, size=len(bnd_dist[mask]))
 
-            y = x[bnd_dist > 0.0] + np.array([r*np.cos(t), r*np.sin(t)]).T
-            retval[bnd_dist > 0.0] += bnd_dist_change**2 * f(y) * Gball(r, bnd_dist_change)
+            y = x[mask, :] + np.array([r*np.cos(t), r*np.sin(t)]).T
+            retval[mask] += bnd_dist[mask]**2 * f(y) * Gball(r, bnd_dist[mask])
 
-            s = np.random.uniform(0, 2*np.pi, size=len(bnd_dist_change))
-            x[bnd_dist > 0.0] += np.array([bnd_dist_change*np.cos(s), bnd_dist_change*np.sin(s)]).T
+            s = np.random.uniform(0, 2*np.pi, size=len(bnd_dist[mask]))
+            x[mask, :] += np.array([bnd_dist[mask]*np.cos(s), bnd_dist[mask]*np.sin(s)]).T
 
             steps += 1
         retval += g(x)
@@ -127,6 +127,16 @@ num = 256
 x = np.linspace(0.0, 1.0, num=num)
 X = np.dstack(np.meshgrid(x, x)).reshape((-1, 2))
 
+# plt.imshow(
+#         np.min((
+#             sd_unit_square(X),
+#             sd_circle(X, np.array((0.5, 0.5)), 0.1),
+#             # sd_circle(X, np.array((0.0, 0.0)), 0.2)
+#         ), axis=0).reshape((num, num)))
+# plt.colorbar()
+# plt.show()
+# quit()
+
 # Solve with MonteCarlo
 tmc_start = perf_counter()
 
@@ -146,12 +156,12 @@ def f_mc(x): return 8*np.pi**2 * np.cos(2*np.pi*x[:, 0]) * np.sin(2*np.pi*x[:, 1
 def g_mc(x):
     ret = np.zeros(len(x))
     dist = np.array([f(x) for f in sd_list])
-    i = np.argmin(dist, axis=0)
-    ret[i == 0] = np.cos(2*np.pi*x[i == 0, 0]) * np.sin(2*np.pi*x[i == 0, 1])
+    mask = np.argmin(dist, axis=0) == 0  # sd_list[0] is the unit square
+    ret[mask] = np.cos(2*np.pi*x[mask, 0]) * np.sin(2*np.pi*x[mask, 1])
     return ret
 
 
-u_mc = WoS2D(X, sd_field, f_mc, g_mc, bnd_tol=1e-5, nwalkers=20, nsteps=15)
+u_mc = WoS2D(X, sd_field, f_mc, g_mc, bnd_tol=1e-5, nwalkers=200, nsteps=15)
 
 tmc_stop = perf_counter()
 
@@ -160,6 +170,6 @@ u_mc = u_mc.reshape((num, num))
 # Report
 print('Time MC:', tmc_stop - tmc_start)
 
-# plt.imshow(u_mc)
-# plt.title('u_mc')
-# plt.show()
+plt.imshow(u_mc)
+plt.title('u_mc')
+plt.show()
