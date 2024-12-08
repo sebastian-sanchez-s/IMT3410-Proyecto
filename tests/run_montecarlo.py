@@ -7,6 +7,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--geom')
+parser.add_argument('--savename')
 
 args = parser.parse_args()
 
@@ -86,24 +87,30 @@ def Gball(r, R):
 def WoS2D(x0, mesh, f, g, bnd_tol=1e-3, nwalkers=20, nsteps=10):
     retval = np.zeros(len(x0))
     for w in range(nwalkers):
-        x = x0
+        x = np.array(x0)
         steps = 0
         bnd_dist = float('inf')
         while np.max(bnd_dist) > bnd_tol and steps < nsteps:
             bnd_dist = mesh.dist2bnd(x)
 
+            #  Iteration modifies only those points not yet on the boundary
             mask = bnd_dist > bnd_tol
+            R = bnd_dist[mask]
 
-            r = bnd_dist[mask] * np.random.uniform(size=len(bnd_dist[mask]))
-            t = np.random.uniform(0.0, 2*np.pi, size=len(bnd_dist[mask]))
+            #  One point estimation of int G(x,y) f(y)
+            r = R * np.random.uniform(size=len(R))
+            t = np.random.uniform(0.0, 2.0*np.pi, size=len(R))
 
             y = x[mask, :] + np.array([r*np.cos(t), r*np.sin(t)]).T
-            retval[mask] += bnd_dist[mask]**2 * f(y) * Gball(r, bnd_dist[mask])
+            retval[mask] += (np.pi * R**2) * f(y) * Gball(r, R)
 
-            s = np.random.uniform(0.0, 2*np.pi, size=len(bnd_dist[mask]))
-            x[mask, :] += np.array([bnd_dist[mask]*np.cos(s), bnd_dist[mask]*np.sin(s)]).T
+            #  Walk on Sphere
+            s = np.random.uniform(0.0, 2.0*np.pi, size=len(R))
+            x[mask, :] += np.array([R*np.cos(s), R*np.sin(s)]).T
 
             steps += 1
+
+        # Estimation of the boundary integral
         retval += g(x)
     return retval/nwalkers
 
@@ -126,16 +133,6 @@ with open(args.geom, 'r') as f_geom:
 num = 256
 x = np.linspace(0.0, 1.0, num=num)
 X = np.dstack(np.meshgrid(x, x)).reshape((-1, 2))
-
-# plt.imshow(
-#         np.min((
-#             sd_unit_square(X),
-#             sd_circle(X, np.array((0.5, 0.5)), 0.1),
-#             # sd_circle(X, np.array((0.0, 0.0)), 0.2)
-#         ), axis=0).reshape((num, num)))
-# plt.colorbar()
-# plt.show()
-# quit()
 
 # Solve with MonteCarlo
 tmc_start = perf_counter()
@@ -167,7 +164,7 @@ def g_mc(x):
     return ret
 
 
-u_mc = WoS2D(X, sd_field, f_mc, g_mc, bnd_tol=1e-3, nwalkers=20, nsteps=10)
+u_mc = WoS2D(X, sd_field, f_mc, g_mc, bnd_tol=1e-4, nwalkers=20, nsteps=15)
 
 tmc_stop = perf_counter()
 
@@ -176,6 +173,8 @@ u_mc = u_mc.reshape((num, num))
 # Report
 print('Time MC:', tmc_stop - tmc_start)
 
-plt.imshow(u_mc)
-plt.title('u_mc')
-plt.show()
+np.save(args.savename, u_mc)
+
+# plt.imshow(u_mc)
+# plt.title('u_mc')
+# plt.show()

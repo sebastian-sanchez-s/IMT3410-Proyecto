@@ -10,6 +10,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--geom')
+parser.add_argument('--savename')
 
 args = parser.parse_args()
 
@@ -80,6 +81,8 @@ u_ng = u_ng.reshape((num, num))
 # Report results
 print('Time NG:', tng_stop - tng_start)
 
-plt.imshow(u_ng)
-plt.title('u_ng')
-plt.show()
+np.save(args.savename, u_ng)
+
+# plt.imshow(u_ng)
+# plt.title('u_ng')
+# plt.show()
