@@ -59,7 +59,7 @@ g_ng = ng.GridFunction(fes)
 g_ng.Set(ng.cos(2*ng.pi*ng.x) * ng.sin(2*ng.pi*ng.y), definedon=mesh_ng.Boundaries('left|bottom|right|top'))
 
 u_ng_sol = ng.GridFunction(fes)
-u_ng_sol.Set(ng.CF(0)*ng.x, definedon=mesh_ng.Boundaries('bc_hole'))
+u_ng_sol.Set(ng.CF(0), definedon=mesh_ng.Boundaries('bc_hole'))
 u_ng_sol.Set(g_ng, definedon=mesh_ng.Boundaries('left|bottom|right|top'))
 
 c = ng.Preconditioner(b_ng, 'local')
@@ -80,6 +80,6 @@ u_ng = u_ng.reshape((num, num))
 # Report results
 print('Time NG:', tng_stop - tng_start)
 
-# plt.imshow(u_ng)
-# plt.title('u_ng')
-# plt.show()
+plt.imshow(u_ng)
+plt.title('u_ng')
+plt.show()
