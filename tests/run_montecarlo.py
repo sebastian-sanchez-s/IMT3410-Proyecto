@@ -100,7 +100,7 @@ def WoS2D(x0, mesh, f, g, bnd_tol=1e-3, nwalkers=20, nsteps=10):
             y = x[mask, :] + np.array([r*np.cos(t), r*np.sin(t)]).T
             retval[mask] += bnd_dist[mask]**2 * f(y) * Gball(r, bnd_dist[mask])
 
-            s = np.random.uniform(0, 2*np.pi, size=len(bnd_dist[mask]))
+            s = np.random.uniform(0.0, 2*np.pi, size=len(bnd_dist[mask]))
             x[mask, :] += np.array([bnd_dist[mask]*np.cos(s), bnd_dist[mask]*np.sin(s)]).T
 
             steps += 1
@@ -143,11 +143,17 @@ tmc_start = perf_counter()
 sd_list = [lambda x: sd_unit_square(x)]
 for (type, *attr) in geom_primitives:
     match type:
-        case 'rectangle': sd_list.append(lambda x: sd_box(x, attr[0], attr[1]))
-        case 'circle': sd_list.append(lambda x: sd_circle(x, attr[0], attr[1]))
+        case 'rectangle': sd_list.append(lambda x, attr=attr: sd_box(x, attr[0], attr[1]))
+        case 'circle': sd_list.append(lambda x, attr=attr: sd_circle(x, attr[0], attr[1]))
         case _: raise ValueError('Bad geometry')
 
 sd_field = SDF(sd_list)
+
+# print(geom_primitives)
+# plt.imshow(sd_field.dist2bnd(X).reshape((num, num)))
+# plt.colorbar()
+# plt.show()
+# quit()
 
 
 def f_mc(x): return 8*np.pi**2 * np.cos(2*np.pi*x[:, 0]) * np.sin(2*np.pi*x[:, 1])
@@ -161,7 +167,7 @@ def g_mc(x):
     return ret
 
 
-u_mc = WoS2D(X, sd_field, f_mc, g_mc, bnd_tol=1e-5, nwalkers=200, nsteps=15)
+u_mc = WoS2D(X, sd_field, f_mc, g_mc, bnd_tol=1e-3, nwalkers=20, nsteps=10)
 
 tmc_stop = perf_counter()
 
