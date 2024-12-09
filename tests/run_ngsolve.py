@@ -79,9 +79,10 @@ for i, p in enumerate(X):
 u_ng = u_ng.reshape((num, num))
 
 # Report results
-print('Time NG:', tng_stop - tng_start)
-
-np.save(args.savename, u_ng)
+np.save(args.savename, {
+    'u': u_ng,
+    't': tng_stop - tng_start
+})
 
 # plt.imshow(u_ng)
 # plt.title('u_ng')

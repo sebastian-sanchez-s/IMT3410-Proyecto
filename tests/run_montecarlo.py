@@ -8,6 +8,9 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--geom')
 parser.add_argument('--savename')
+parser.add_argument('--bnd-tol')
+parser.add_argument('--nwalkers')
+parser.add_argument('--nsteps')
 
 args = parser.parse_args()
 
@@ -164,16 +167,21 @@ def g_mc(x):
     return ret
 
 
-u_mc = WoS2D(X, sd_field, f_mc, g_mc, bnd_tol=1e-4, nwalkers=20, nsteps=15)
+u_mc = WoS2D(X, sd_field, f_mc, g_mc, bnd_tol=float(args.bnd_tol), nwalkers=int(args.nwalkers), nsteps=int(args.nsteps))
 
 tmc_stop = perf_counter()
 
 u_mc = u_mc.reshape((num, num))
 
-# Report
-print('Time MC:', tmc_stop - tmc_start)
 
-np.save(args.savename, u_mc)
+# Report
+if args.savename:
+    np.save(args.savename, {
+        'u': u_mc,
+        't': tmc_stop-tmc_start,
+        'bnd_tol': args.bnd_tol,
+        'nwalkers': args.nwalkers
+    })
 
 # plt.imshow(u_mc)
 # plt.title('u_mc')
