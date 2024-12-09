@@ -89,7 +89,10 @@ def Gball(r, R):
 
 def WoS2D(x0, mesh, f, g, bnd_tol=1e-3, nwalkers=20, nsteps=10):
     retval = np.zeros(len(x0))
+    mean_time = 0
     for w in range(nwalkers):
+
+        start_time = perf_counter() 
         x = np.array(x0)
         steps = 0
         bnd_dist = float('inf')
@@ -106,6 +109,7 @@ def WoS2D(x0, mesh, f, g, bnd_tol=1e-3, nwalkers=20, nsteps=10):
 
             y = x[mask, :] + np.array([r*np.cos(t), r*np.sin(t)]).T
             retval[mask] += (np.pi * R**2) * f(y) * Gball(r, R)
+            
 
             #  Walk on Sphere
             s = np.random.uniform(0.0, 2.0*np.pi, size=len(R))
@@ -115,6 +119,13 @@ def WoS2D(x0, mesh, f, g, bnd_tol=1e-3, nwalkers=20, nsteps=10):
 
         # Estimation of the boundary integral
         retval += g(x)
+
+        end_time = perf_counter()
+        walker_time = end_time - start_time
+        mean_time += walker_time 
+        
+    avg_time = mean_time / nwalkers 
+    print(f"Average time per walker: {avg_time:.4f} seconds")
     return retval/nwalkers
 
 
@@ -175,14 +186,14 @@ u_mc = u_mc.reshape((num, num))
 
 
 # Report
-if args.savename:
-    np.save(args.savename, {
-        'u': u_mc,
-        't': tmc_stop-tmc_start,
-        'bnd_tol': args.bnd_tol,
-        'nwalkers': args.nwalkers
-    })
+#if args.savename:
+#    np.save(args.savename, {
+#        'u': u_mc,
+#        't': tmc_stop-tmc_start,
+#        'bnd_tol': args.bnd_tol,
+#        'nwalkers': args.nwalkers
+#    })
 
-# plt.imshow(u_mc)
-# plt.title('u_mc')
-# plt.show()
+plt.imshow(u_mc)
+plt.title('u_mc')
+plt.show()
